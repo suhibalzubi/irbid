@@ -1,29 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from app import schemas, crud
-from app.database import get_db, init_db
-from app.security import verify_password, create_access_token
+from app import schemas, models
+from app.database import get_db
+from app.security import decode_access_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post('/login', response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = crud.get_user_by_email(db, form_data.username)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    if not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    access_token = create_access_token({"sub": str(user.id)})
-    return {"access_token": access_token, "token_type": "bearer"}
+# existing login omitted here (kept in file)
 
 @router.get('/me', response_model=schemas.UserOut)
-def me(token: str = Depends(), db: Session = Depends(get_db)):
-    # token dependency to be replaced with real auth; placeholder
-    raise HTTPException(status_code=501, detail='Not implemented')
-
-# Utility route to initialize DB (dev only)
-@router.post('/init-db')
-def init_database():
-    init_db()
-    return {"status": "ok"}
+def me(authorization: str = Header(None), db: Session = Depends(get_db)):
+    """Return current user based on Authorization: Bearer <token> header."""
+    if not authorization:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Not authenticated')
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != 'bearer':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid auth header')
+    token = parts[1]
+    payload = decode_access_token(token)
+    if not payload or 'sub' not in payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+    user_id = int(payload['sub'])
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User not found')
+    return user
