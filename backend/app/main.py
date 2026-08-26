@@ -12,9 +12,12 @@ app.add_middleware(
 )
 
 # Routers
-from app.routers import auth, companies
+from app.routers import auth, companies, invoices, payments, reports
 app.include_router(auth.router)
 app.include_router(companies.router)
+app.include_router(invoices.router)
+app.include_router(payments.router)
+app.include_router(reports.router)
 
 @app.get("/health")
 async def health():
