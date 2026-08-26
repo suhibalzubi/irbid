@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <style>
+    .tbl { fill:#f8f9fb; stroke:#2b3748; stroke-width:1.5; }
+    .title { font: bold 16px sans-serif; fill:#0b2a3b; }
+    .field { font: 13px monospace; fill:#1b2b36; }
+    .rel { stroke:#888; stroke-width:1.2; fill:none; marker-end:url(#arrow); }
+    .box-shadow { filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.15)); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#888" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" class="title">ERD — نموذج جداول النظام (نظرة عامة)</text>
+
+  <!-- users -->
+  <g transform="translate(30,60)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="300" height="120" rx="6" />
+    <text x="12" y="22" class="title">users — المستخدمون</text>
+    <text x="12" y="44" class="field">id (PK)</text>
+    <text x="12" y="62" class="field">email (unique)</text>
+    <text x="12" y="80" class="field">password_hash</text>
+    <text x="12" y="98" class="field">name, locale, created_at</text>
+  </g>
+
+  <!-- companies -->
+  <g transform="translate(360,60)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="340" height="160" rx="6" />
+    <text x="12" y="22" class="title">companies — الشركات</text>
+    <text x="12" y="44" class="field">id (PK)</text>
+    <text x="12" y="62" class="field">owner_user_id (FK → users.id)</text>
+    <text x="12" y="80" class="field">name, vat_number, currency_code</text>
+    <text x="12" y="98" class="field">default_vat_rate, fiscal_year_start</text>
+    <text x="12" y="116" class="field">created_at</text>
+  </g>
+
+  <!-- chart_of_accounts -->
+  <g transform="translate(730,60)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="320" height="150" rx="6" />
+    <text x="12" y="22" class="title">chart_of_accounts — دليل الحسابات</text>
+    <text x="12" y="44" class="field">id (PK)</text>
+    <text x="12" y="62" class="field">company_id (FK → companies.id)</text>
+    <text x="12" y="80" class="field">code, name, type (asset/liab/...)</text>
+    <text x="12" y="98" class="field">parent_account_id (nullable)</text>
+  </g>
+
+  <!-- customers/vendors row -->
+  <g transform="translate(30,220)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="330" height="120" rx="6" />
+    <text x="12" y="22" class="title">customers — العملاء</text>
+    <text x="12" y="44" class="field">id, company_id (FK)</text>
+    <text x="12" y="62" class="field">name, contact_person, email, phone</text>
+    <text x="12" y="80" class="field">address, opening_balance, terms_days</text>
+  </g>
+
+  <g transform="translate(390,220)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="330" height="120" rx="6" />
+    <text x="12" y="22" class="title">vendors — الموردون</text>
+    <text x="12" y="44" class="field">id, company_id (FK)</text>
+    <text x="12" y="62" class="field">name, contact, email, phone</text>
+    <text x="12" y="80" class="field">address, opening_balance</text>
+  </g>
+
+  <!-- products -->
+  <g transform="translate(750,220)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="300" height="120" rx="6" />
+    <text x="12" y="22" class="title">products — الأصناف</text>
+    <text x="12" y="44" class="field">id, company_id, sku</text>
+    <text x="12" y="62" class="field">name, description, unit_price</text>
+    <text x="12" y="80" class="field">sales_account_id, purchase_account_id, tax_rate_id</text>
+  </g>
+
+  <!-- tax_rates -->
+  <g transform="translate(30,370)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="300" height="90" rx="6" />
+    <text x="12" y="22" class="title">tax_rates — معدلات الضريبة</text>
+    <text x="12" y="44" class="field">id, company_id, name, rate_percent</text>
+    <text x="12" y="62" class="field">is_compound, created_at</text>
+  </g>
+
+  <!-- invoices -->
+  <g transform="translate(360,360)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="420" height="150" rx="6" />
+    <text x="12" y="22" class="title">invoices — الفواتير</text>
+    <text x="12" y="44" class="field">id, company_id, type (sales|purchase)</text>
+    <text x="12" y="62" class="field">number, date, due_date</text>
+    <text x="12" y="80" class="field">customer_id/vendor_id, subtotal, tax_total, total</text>
+    <text x="12" y="98" class="field">status (draft/issued/paid/cancelled), notes</text>
+  </g>
+
+  <!-- invoice_items -->
+  <g transform="translate(820,360)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="460" height="110" rx="6" />
+    <text x="12" y="22" class="title">invoice_items — بنود الفاتورة</text>
+    <text x="12" y="44" class="field">id, invoice_id, product_id (nullable)</text>
+    <text x="12" y="62" class="field">description, quantity, unit_price, tax_rate_id</text>
+    <text x="12" y="80" class="field">line_total</text>
+  </g>
+
+  <!-- payments -->
+  <g transform="translate(30,490)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="360" height="110" rx="6" />
+    <text x="12" y="22" class="title">payments — الدفعات</text>
+    <text x="12" y="44" class="field">id, company_id, invoice_id (nullable)</text>
+    <text x="12" y="62" class="field">payment_date, amount, method, reference</text>
+    <text x="12" y="80" class="field">bank_account_id, created_at</text>
+  </g>
+
+  <!-- bank_accounts -->
+  <g transform="translate(420,490)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="280" height="80" rx="6" />
+    <text x="12" y="22" class="title">bank_accounts — حسابات بنكية</text>
+    <text x="12" y="44" class="field">id, company_id, name, account_number</text>
+    <text x="12" y="62" class="field">bank_name, balance</text>
+  </g>
+
+  <!-- journal_entries & lines -->
+  <g transform="translate(740,490)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="540" height="160" rx="6" />
+    <text x="12" y="22" class="title">journal_entries — القيود اليومية</text>
+    <text x="12" y="44" class="field">id, company_id, date, ref_type (invoice/payment/manual)</text>
+    <text x="12" y="62" class="field">ref_id, description, total_debit, total_credit</text>
+    <text x="12" y="84" class="field">journal_lines → account_id, debit, credit, description</text>
+    <text x="12" y="104" class="field">(التأكد: مجموع الدائن = مجموع المدين)</text>
+  </g>
+
+  <!-- audit_logs & import_jobs -->
+  <g transform="translate(30,620)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="370" height="90" rx="6" />
+    <text x="12" y="22" class="title">audit_logs — سجل التدقيق</text>
+    <text x="12" y="44" class="field">id, company_id, user_id, action, entity_type</text>
+    <text x="12" y="62" class="field">changes_json, created_at</text>
+  </g>
+
+  <g transform="translate(420,620)" class="box-shadow">
+    <rect class="tbl" x="0" y="0" width="540" height="90" rx="6" />
+    <text x="12" y="22" class="title">import_jobs — مهام الاستيراد</text>
+    <text x="12" y="44" class="field">id, company_id, user_id, file_name, type</text>
+    <text x="12" y="62" class="field">status, error_message, created_at</text>
+  </g>
+
+  <!-- Relationships (illustrative lines) -->
+  <line x1="260" y1="120" x2="360" y2="120" class="rel" />
+  <line x1="700" y1="120" x2="730" y2="120" class="rel" />
+  <line x1="190" y1="300" x2="360" y2="300" class="rel" />
+  <line x1="520" y1="300" x2="730" y2="300" class="rel" />
+  <line x1="600" y1="460" x2="750" y2="460" class="rel" />
+
+  <text x="30" y="720" class="field">ملاحظة: هذا ERD مبسط ومرئي سريع — سأزوّد ملف SQL ونسخة مفصلة من مخطط العلاقات عند اعتمادك للمخطط.</text>
+
+</svg>
